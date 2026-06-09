@@ -11,10 +11,11 @@ class Ticket extends Model
     use HasFactory;
     protected $table = 'tickets';
     protected $primaryKey = 'id';
+    protected $timestamp = true;
     protected $fillable = [
         'event_id',
         'price',
         'quota',
-        'remaining_qouta',
+        'remaining_quota',
     ];
 }

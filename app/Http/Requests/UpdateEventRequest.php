@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateEventRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class UpdateEventRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +24,27 @@ class UpdateEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'min:3|max:255',
+            'description' => 'min:3',
+            'category' => 'in:konser,workshop',
+            'date' => 'date_format:d F Y',
+            'time' => 'date_format:H:i A',
+            'location' => 'min:3|max:255',
+        ];
+    }
+
+    #[Override]
+    public function messages()
+    {
+        return [
+            'title.min' => 'Judul acara minimal 3 karakter.',
+            'title.max' => 'Judul acara maksimal 255 karakter.',
+            'description.min' => 'Deskripsi acara minimal 3 karakter.',
+            'category.in' => 'Kategori acara harus salah satu dari: konser, workshop.',
+            'date.date_format' => 'Tanggal acara harus dalam format: d F Y (contoh: 25 December 2024).',
+            'time.date_format' => 'Waktu acara harus dalam format: H:i A (contoh: 19:30 PM).',
+            'location.min' => 'Lokasi acara minimal 3 karakter.',
+            'location.max' => 'Lokasi acara maksimal 255 karakter.',
         ];
     }
 }

@@ -11,6 +11,7 @@ class Transaction extends Model
     use HasFactory;
     protected $table = 'transactions';
     protected $primaryKey = 'id';
+    protected $timestamp = true;
     protected $fillable = [
         'user_id',
         'ticket_id',

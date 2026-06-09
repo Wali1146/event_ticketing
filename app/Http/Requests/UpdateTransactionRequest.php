@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Override;
 
 class UpdateTransactionRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class UpdateTransactionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +24,22 @@ class UpdateTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'user_id' => 'integer',
+            'ticket_id' => 'integer',
+            'qty' => 'integer',
+            'total_price' => 'integer|min:5',
+        ];
+    }
+
+    #[Override]
+    public function messages()
+    {
+        return [
+            'user_id.integer' => 'Id pengguna harus integer',
+            'ticket_id.integer' => 'Id tiket harus integer',
+            'qty.integer' => 'Jumlah harus integer',
+            'total_price.integer' => 'Harga total harus integer',
+            'total_price.min' => 'Harga total minimal 5 karakter (contoh: 10000)',
         ];
     }
 }

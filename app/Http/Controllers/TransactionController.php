@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
@@ -22,7 +23,9 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
-        //
+        $data = $request->validated();
+        $transaction = Transaction::create($data);
+        return response()->json($transaction);
     }
 
     /**
@@ -37,9 +40,11 @@ class TransactionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTransactionRequest $request, string $id)
+    public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        //
+        $data = $request->validated();
+        $transaction->update($data);
+        return response()->json($transaction);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Support\Facades\DB;
@@ -22,10 +23,9 @@ class EventController extends Controller
      */
     public function store(StoreEventRequest $request)
     {
-        StoreEventRequest::create($request->validated());
-        return response()->json([
-            'message' => 'Event created successfully',
-        ], 201);
+        $data = $request->validated();
+        $event = Event::create($data);
+        return response()->json($event);
     }
 
     /**
@@ -40,9 +40,11 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, string $id)
+    public function update(UpdateEventRequest $request, Event $event)
     {
-        //
+        $data = $request->validated();
+        $event->update($data);
+        return response()->json($event);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,9 @@ class TicketController extends Controller
      */
     public function store(StoreTicketRequest $request)
     {
-        //
+        $data = $request->validated();
+        $ticket = Ticket::create($data);
+        return response()->json($ticket);
     }
 
     /**
@@ -37,9 +40,11 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTicketRequest $request, string $id)
+    public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        //
+        $data = $request->validated();
+        $ticket->update($data);
+        return response()->json($ticket);
     }
 
     /**
