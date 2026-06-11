@@ -24,10 +24,10 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|integer',
+            'user_id' => 'integer',
             'ticket_id' => 'required|integer',
             'qty' => 'required|integer',
-            'total_price' => 'required|integer|min:5',
+            'total_price' => 'integer|min:5',
         ];
     }
 

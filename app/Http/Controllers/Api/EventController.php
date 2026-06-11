@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Models\Event;
-use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Controllers\Controller;
+use App\Models\Event;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class EventController extends Controller
 {
@@ -15,6 +17,12 @@ class EventController extends Controller
     public function index()
     {
         $event = DB::select('select * from events');
+        return response()->json($event);
+    }
+
+    public function indexUser(Request $request){
+        $id = $request->user()->id;
+        $event = DB::select('select * from events where user_id = ?', [$id]);
         return response()->json($event);
     }
 

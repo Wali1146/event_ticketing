@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
 {
@@ -15,6 +17,12 @@ class UserController extends Controller
     public function index()
     {
         $user = DB::select('select * from users');
+        return response()->json($user);
+    }
+
+    public function indexUser(Request $request){
+        $id = $request->user()->id;
+        $user = DB::select('select * from users where user_id = ?', [$id]);
         return response()->json($user);
     }
 

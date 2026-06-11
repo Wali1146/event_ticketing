@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\APi;
 
-use App\Models\Ticket;
-use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class TicketController extends Controller
 {
@@ -43,6 +45,21 @@ class TicketController extends Controller
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
         $data = $request->validated();
+        /**
+         * jika admin input lagi remaining_quota, tidak boleh melebihi quota
+         * dan akan menambah quota sebelumnya
+         */
+        if (isset($data['remaining_quota'])) {
+            $update = $ticket->remaining_quota + $data['remaining_quota'];
+            if ($update > $ticket->quota) {
+                return response()->json([
+                    'message' => 'Sisa kuota tidak boleh melebihi kuota yang disediakan',
+                    'sisa_kuota' => $ticket->remaining_quota,
+                    'kuota_maksimal' => $ticket->quota,
+                ]);
+            }
+            $data['remaining_quota'] = $update;
+        }
         $ticket->update($data);
         return response()->json($ticket);
     }
