@@ -24,10 +24,10 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'min:3|max:255',
-            'email' => 'email|unique:users,email,' . $this->route('user')->id,
-            'password' => 'min:6|confirmed',
-            'role' => 'in:user,admin',
+            'name' => 'sometimes|min:3|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $this->user()->id,
+            'password' => 'sometimes|min:6|confirmed',
+            'role' => 'sometimes|in:user,admin',
         ];
     }
 

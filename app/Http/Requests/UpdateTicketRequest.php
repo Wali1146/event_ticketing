@@ -24,10 +24,10 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'event_id' => 'integer',
-            'price' => 'integer|min:5',
-            'quota' => 'integer',
-            'remaining_quota' => 'integer',
+            'event_id' => 'sometimes|integer',
+            'price' => 'sometimes|integer|min:5',
+            'quota' => 'sometimes|integer',
+            'remaining_quota' => 'sometimes|integer',
         ];
     }
 

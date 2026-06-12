@@ -24,12 +24,12 @@ class UpdateEventRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'min:3|max:255',
-            'description' => 'min:3',
-            'category' => 'in:konser,workshop',
-            'date' => 'date_format:d F Y',
-            'time' => 'date_format:H:i A',
-            'location' => 'min:3|max:255',
+            'title' => 'sometimes|min:3|max:255',
+            'description' => 'sometimes|min:3',
+            'category' => 'sometimes|in:konser,workshop',
+            'date' => 'sometimes|date_format:d F Y',
+            'time' => 'sometimes|date_format:H:i A',
+            'location' => 'sometimes|min:3|max:255',
         ];
     }
 

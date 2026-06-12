@@ -24,10 +24,10 @@ class UpdateTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'integer',
-            'ticket_id' => 'integer',
-            'qty' => 'integer',
-            'total_price' => 'integer|min:5',
+            'user_id' => 'sometimes|integer',
+            'ticket_id' => 'sometimes|integer',
+            'qty' => 'sometimes|integer',
+            'total_price' => 'sometimes|integer|min:5',
         ];
     }
 
