@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\APi;
 
-use App\Http\Requests\UpdateTicketRequest;
-use App\Http\Requests\StoreTicketRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use App\Services\TicketService;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 
 class TicketController extends Controller
 {
@@ -33,34 +33,22 @@ class TicketController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id, TicketService $service)
     {
-        $ticket = DB::select('select * from tickets where id = ?', [$id]);
+        $data = Ticket::query()->find($id);
+        $ticket = $service->get($data);
         return response()->json($ticket);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTicketRequest $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, TicketService $service)
     {
         $data = $request->validated();
-        /**
-         * jika admin input lagi remaining_quota, tidak boleh melebihi quota
-         * dan akan menambah quota sebelumnya
-         */
-        if (isset($data['remaining_quota'])) {
-            $update = $ticket->remaining_quota + $data['remaining_quota'];
-            if ($update > $ticket->quota) {
-                return response()->json([
-                    'message' => 'Sisa kuota tidak boleh melebihi kuota yang disediakan',
-                    'sisa_kuota' => $ticket->remaining_quota,
-                    'kuota_maksimal' => $ticket->quota,
-                ]);
-            }
-            $data['remaining_quota'] = $update;
-        }
-        $ticket->update($data);
+        $ticket = Ticket::query()->find($request->id);
+        $event = $ticket->event;
+        $ticket = $service->update($data, $ticket, $event);
         return response()->json($ticket);
     }
 
@@ -70,6 +58,6 @@ class TicketController extends Controller
     public function destroy(string $id)
     {
         $ticket = DB::select('delete from tickets where id = ?', [$id]);
-        return response()->json($ticket);
+        return response()->json(['message' => 'Delete berhasil', $ticket]);
     }
 }

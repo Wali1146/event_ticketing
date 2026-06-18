@@ -18,4 +18,9 @@ class Ticket extends Model
         'quota',
         'remaining_quota',
     ];
+    
+    public function event()
+    {
+        return $this->belongsTo(Event::class, 'event_id');
+    }
 }

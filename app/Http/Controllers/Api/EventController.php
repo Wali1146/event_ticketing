@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateEventRequest;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Services\EventService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
@@ -20,7 +21,8 @@ class EventController extends Controller
         return response()->json($event);
     }
 
-    public function indexUser(Request $request){
+    public function indexUser(Request $request)
+    {
         $id = $request->user()->id;
         $event = DB::select('select * from events where user_id = ?', [$id]);
         return response()->json($event);
@@ -39,10 +41,11 @@ class EventController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, EventService $service)
     {
-        $event = DB::select('select * from events where id = ?', [$id]);
-        return response()->json($event);
+        $data = Event::query()->find($id);
+        $event = $service->get($data);
+        return response()->json($$event);
     }
 
     /**
@@ -52,7 +55,7 @@ class EventController extends Controller
     {
         $data = $request->validated();
         $event->update($data);
-        return response()->json($event);
+        return response()->json(['message' => 'Update berhasil', 'update' => $event->id]);
     }
 
     /**
@@ -61,6 +64,6 @@ class EventController extends Controller
     public function destroy(string $id)
     {
         $event = DB::select('delete from events where id = ?', [$id]);
-        return response()->json($event);
+        return response()->json(['message' => 'Delete berhasil', $event]);
     }
 }

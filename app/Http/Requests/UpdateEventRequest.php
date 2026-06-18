@@ -27,7 +27,7 @@ class UpdateEventRequest extends FormRequest
             'title' => 'sometimes|min:3|max:255',
             'description' => 'sometimes|min:3',
             'category' => 'sometimes|in:konser,workshop',
-            'date' => 'sometimes|date_format:d F Y',
+            'date' => 'sometimes|date_format:Y-m-d',
             'time' => 'sometimes|date_format:H:i',
             'location' => 'sometimes|min:3|max:255',
         ];
@@ -41,8 +41,8 @@ class UpdateEventRequest extends FormRequest
             'title.max' => 'Judul acara maksimal 255 karakter.',
             'description.min' => 'Deskripsi acara minimal 3 karakter.',
             'category.in' => 'Kategori acara harus salah satu dari: konser, workshop.',
-            'date.date_format' => 'Tanggal acara harus dalam format: d F Y (contoh: 25 December 2024).',
-            'time.date_format' => 'Waktu acara harus dalam format: H:i (contoh: 19:30).',
+            'date.date_format' => 'Tanggal acara harus dalam format: YYYY-MM-DD (contoh: 2026-06-09).',
+            'time.date_format' => 'Waktu acara harus dalam format: HH:MM (contoh: 19:30).',
             'location.min' => 'Lokasi acara minimal 3 karakter.',
             'location.max' => 'Lokasi acara maksimal 255 karakter.',
         ];

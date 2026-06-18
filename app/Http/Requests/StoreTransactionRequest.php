@@ -25,9 +25,9 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'user_id' => 'integer',
-            'ticket_id' => 'required|integer',
-            'qty' => 'required|integer',
-            'total_price' => 'integer|min:5',
+            'ticket_id' => 'required|integer|exists:ticket,id',
+            'qty' => 'required|integer|min:1',
+            'total_price' => 'integer|min:10000',
         ];
     }
 
@@ -35,15 +35,16 @@ class StoreTransactionRequest extends FormRequest
     public function messages()
     {
         return [
-            'user_id.required' => 'Id pengguna harus diisi',
             'user_id.integer' => 'Id pengguna harus integer',
             'ticket_id.required' => 'Id tiket harus diisi',
             'ticket_id.integer' => 'Id tiket harus integer',
+            'ticket_id.exists' => 'Id tiket tidak ditemukan',
             'qty.required' => 'Jumlah harus diisi',
             'qty.integer' => 'Jumlah harus integer',
+            'qty.min' => 'Jumlah minimal 1',
             'total_price.required' => 'Harga total harus diisi',
             'total_price.integer' => 'Harga total harus integer',
-            'total_price.min' => 'Harga total minimal 5 karakter (contoh: 10000)',
+            'total_price.min' => 'Harga total minimal 10000',
         ];
     }
 }

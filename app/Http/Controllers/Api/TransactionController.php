@@ -6,10 +6,9 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
-use App\Models\Ticket;
+use App\Services\TransactionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class TransactionController extends Controller
 {
@@ -35,40 +34,31 @@ class TransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTransactionRequest $request)
+    public function store(StoreTransactionRequest $request, TransactionService $service)
     {
         $data = $request->validated();
-        $ticket = Ticket::query()->where('id', $request->ticket_id)->first();
-        if (!$ticket) {
-            return response()->json(['message' => 'Tiket tidak ditemukan',]);
-        }
-        if ($ticket->remaining_quota < $request->qty) {
-            return response()->json([
-                'message' => 'Permintaan melebihi kuota yg disediakan',
-                'sisa_tiket' => $ticket->remaining_quota,
-            ]);
-        }
-        $transaction = Transaction::create($data);
-        $ticket->update(['remaining_quota' => $ticket->remaining_quota - $request->qty]);
+        $transaction = $service->create($data, $data, $request->user());
         return response()->json($transaction);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, TransactionService $service)
     {
-        $transaction = DB::select('select * from transactions where id = ?', [$id]);
+        $data = Transaction::query()->find($id);
+        $transaction = $service->get($data);
         return response()->json($transaction);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTransactionRequest $request, Transaction $transaction)
+    public function update(UpdateTransactionRequest $request, TransactionService $service)
     {
         $data = $request->validated();
-        $transaction->update($data);
+        $transaction = Transaction::query()->findOrFail($request->id);
+        $transaction = $service->update($data, $transaction);
         return response()->json($transaction);
     }
 
@@ -78,6 +68,6 @@ class TransactionController extends Controller
     public function destroy(string $id)
     {
         $transaction = DB::select('delete from transactions where id = ?', [$id]);
-        return response()->json($transaction);
+        return response()->json(['message' => 'Delete berhasil', $transaction]);
     }
 }

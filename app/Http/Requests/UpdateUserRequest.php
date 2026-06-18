@@ -26,7 +26,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'sometimes|min:3|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $this->user()->id,
-            'password' => 'sometimes|min:6|confirmed',
+            'password' => 'sometimes|min:4|confirmed',
             'role' => 'sometimes|in:user,admin',
         ];
     }
@@ -39,7 +39,7 @@ class UpdateUserRequest extends FormRequest
             'name.max' => 'Nama maksimal 255 karakter',
             'email.email' => 'Email tidak valid',
             'email.unique' => 'Email sudah digunakan',
-            'password.min' => 'Password minimal 6 karakter',
+            'password.min' => 'Password minimal 4 karakter',
             'password.confirmed' => 'Password tidak cocok',
             'role.in' => 'Role harus salah satu dari: user, admin',
         ];

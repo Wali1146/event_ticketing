@@ -24,10 +24,10 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'event_id' => 'sometimes|integer',
-            'price' => 'sometimes|integer|min:5',
-            'quota' => 'sometimes|integer',
-            'remaining_quota' => 'sometimes|integer',
+            'event_id' => 'sometimes|integer|exists:event,id',
+            'price' => 'sometimes|integer|min:10000',
+            'quota' => 'sometimes|integer|min:1',
+            'remaining_quota' => 'sometimes|integer|min:0',
         ];
     }
 
@@ -36,10 +36,13 @@ class UpdateTicketRequest extends FormRequest
     {
         return [
             'event_id.integer' => 'Id acara harus integer',
+            'event_id.exists' => 'Id acara tidak ditemukan',
             'price.integer' => 'Harga harus integer',
-            'price.min' => 'Harga minimal 5 karakter (contoh: 10000)',
+            'price.min' => 'Harga minimal 10000',
             'quota.integer' => 'Kuota harus integer',
+            'quota.min' => 'Kuota minimal 1',
             'remaining_quota.integer' => 'Sisa kuota harus integer',
+            'remaining_quota.min' => 'Sisa kuota minimal 0',
         ];
     }
 }

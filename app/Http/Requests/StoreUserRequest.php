@@ -26,7 +26,8 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => 'required|min:3|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:6',
+            'role'=>'in:admin,user',
         ];
     }
 
@@ -41,7 +42,8 @@ class StoreUserRequest extends FormRequest
             'email.email' => 'Email tidak valid',
             'email.unique' => 'Email sudah digunakan',
             'password.required' => 'Password harus diisi',
-            'password.min' => 'Password minimal 6 karakter'
+            'password.min' => 'Password minimal 6 karakter',
+            'role.in'=>'Role harus salah satu dari: admin, user'
         ];
     }
 }

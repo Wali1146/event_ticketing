@@ -20,7 +20,8 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function indexUser(Request $request){
+    public function indexUser(Request $request)
+    {
         $id = $request->user()->id;
         $user = DB::select('select * from users where user_id = ?', [$id]);
         return response()->json($user);
@@ -52,7 +53,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $user->update($data);
-        return response()->json($user);
+        return response()->json(['message' => 'Update berhasil', 'update' => $user->id]);
     }
 
     /**
@@ -61,6 +62,6 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $user = DB::select('delete from users where id = ?', [$id]);
-        return response()->json($user);
+        return response()->json(['message' => 'Delete berhasil', $user]);
     }
 }
