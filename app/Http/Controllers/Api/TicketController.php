@@ -5,6 +5,7 @@ namespace App\Http\Controllers\APi;
 use App\Models\Ticket;
 use App\Services\TicketService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TicketResource;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,10 @@ class TicketController extends Controller
     {
         $data = Ticket::query()->find($id);
         $ticket = $service->get($data);
-        return response()->json($ticket);
+        if (is_array($ticket) && isset($ticket['message'])) {
+            return response()->json($ticket);
+        }
+        return new TicketResource($ticket);
     }
 
     /**

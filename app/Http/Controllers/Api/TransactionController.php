@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\UpdateTransactionRequest;
-use App\Http\Requests\StoreTransactionRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Services\TransactionService;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\TransactionResource;
+use App\Http\Requests\StoreTransactionRequest;
+use App\Http\Requests\UpdateTransactionRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class TransactionController extends Controller
 {
@@ -18,7 +19,10 @@ class TransactionController extends Controller
     public function indexAdmin()
     {
         $transaction = DB::select('select * from transactions');
-        return response()->json($transaction);
+        if (empty($transaction)) {
+            return response()->json(['message' => 'Data transaksi tidak ditemukan']);
+        }
+        return TransactionResource::collection($transaction);
     }
 
     /**
@@ -48,7 +52,10 @@ class TransactionController extends Controller
     {
         $data = Transaction::query()->find($id);
         $transaction = $service->get($data);
-        return response()->json($transaction);
+        if (is_array($transaction) && isset($transaction['message'])) {
+            return response()->json($transaction);
+        }
+        return new TransactionResource($transaction);
     }
 
     /**

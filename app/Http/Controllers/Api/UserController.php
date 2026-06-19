@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\UserService;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
@@ -40,10 +42,14 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, UserService $service)
     {
-        $user = DB::select('select * from users where id = ?', [$id]);
-        return response()->json($user);
+        $data = User::query()->find($id);
+        $user = $service->get($data);
+        if (is_array($user) && isset($user['message'])) {
+            return response()->json($user);
+        }
+        return new UserResource($user);
     }
 
     /**

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\UpdateEventRequest;
-use App\Http\Requests\StoreEventRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Services\EventService;
+use App\Http\Controllers\Controller;
+use App\Http\Resources\EventResource;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
@@ -18,7 +19,7 @@ class EventController extends Controller
     public function index()
     {
         $event = DB::select('select * from events');
-        return response()->json($event);
+        return EventResource::collection($event);
     }
 
     public function indexUser(Request $request)
@@ -45,7 +46,10 @@ class EventController extends Controller
     {
         $data = Event::query()->find($id);
         $event = $service->get($data);
-        return response()->json($$event);
+        if (is_array($event) && isset($event['message'])) {
+            return response()->json($event);
+        }
+        return new EventResource($event);
     }
 
     /**
