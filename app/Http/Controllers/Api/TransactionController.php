@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TransactionResource;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
 class TransactionController extends Controller
@@ -18,10 +17,7 @@ class TransactionController extends Controller
      */
     public function indexAdmin()
     {
-        $transaction = DB::select('select * from transactions');
-        if (empty($transaction)) {
-            return response()->json(['message' => 'Data transaksi tidak ditemukan']);
-        }
+        $transaction = Transaction::all();
         return TransactionResource::collection($transaction);
     }
 
@@ -31,8 +27,8 @@ class TransactionController extends Controller
     public function indexUser(Request $request)
     {
         $id = $request->user()->id;
-        $transaction = DB::select('select * from transactions where user_id = ?', [$id]);
-        return response()->json($transaction);
+        $transaction = Transaction::query()->where('user_id', $id)->get();
+        return TransactionResource::collection($transaction);
     }
 
     /**
@@ -64,17 +60,18 @@ class TransactionController extends Controller
     public function update(UpdateTransactionRequest $request, TransactionService $service)
     {
         $data = $request->validated();
-        $transaction = Transaction::query()->findOrFail($request->id);
-        $transaction = $service->update($data, $transaction);
+        $id = Transaction::query()->findOrFail($request->id);
+        $transaction = $service->update($data, $id);
         return response()->json($transaction);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, TransactionService $service)
     {
-        $transaction = DB::select('delete from transactions where id = ?', [$id]);
-        return response()->json(['message' => 'Delete berhasil', $transaction]);
+        $data = Transaction::query()->find($id);
+        $transaction = $service->delete($data);
+        return response()->json($transaction);
     }
 }

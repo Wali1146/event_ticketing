@@ -46,4 +46,13 @@ class TicketService
             return $ticket;
         });
     }
+
+    public function delete(?Ticket $ticket)
+    {
+        if (!$ticket) {
+            return ['message' => 'Tiket tidak ditemukan',];
+        }
+        $ticket->delete($ticket);
+        return ['message' => 'Tiket berhasil dihapus',];
+    }
 }

@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TicketResource;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
-use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -17,8 +16,8 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $ticket = DB::select('select * from tickets');
-        return response()->json($ticket);
+        $ticket = Ticket::all();
+        return TicketResource::collection($ticket);
     }
 
     /**
@@ -50,18 +49,19 @@ class TicketController extends Controller
     public function update(UpdateTicketRequest $request, TicketService $service)
     {
         $data = $request->validated();
-        $ticket = Ticket::query()->find($request->id);
-        $event = $ticket->event;
-        $ticket = $service->update($data, $ticket, $event);
+        $id = Ticket::query()->findOrFail($request->id);
+        $event = $id->event;
+        $ticket = $service->update($data, $id, $event);
         return response()->json($ticket);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, TicketService $service)
     {
-        $ticket = DB::select('delete from tickets where id = ?', [$id]);
-        return response()->json(['message' => 'Delete berhasil', $ticket]);
+        $data = Ticket::query()->find($id);
+        $ticket = $service->delete($data);
+        return response()->json($ticket);
     }
 }

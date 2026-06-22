@@ -82,4 +82,13 @@ class TransactionService
             return $transaction;
         });
     }
+
+    public function delete(?Transaction $transaction)
+    {
+        if (!$transaction) {
+            return ['message' => 'Transaksi tidak ditemukan',];
+        }
+        $transaction->delete($transaction);
+        return ['message' => 'Transaksi berhasil dihapus',];
+    }
 }

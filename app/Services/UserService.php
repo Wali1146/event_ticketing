@@ -13,4 +13,22 @@ class UserService
         }
         return $user;
     }
+
+    public function update(?User $user, array $data)
+    {
+        if (!$user) {
+            return ['message' => 'User tidak ditemukan',];
+        }
+        $user->update($data);
+        return $user;
+    }
+
+    public function delete(?User $user)
+    {
+        if (!$user) {
+            return ['message' => 'User tidak ditemukan',];
+        }
+        $user->delete($user);
+        return ['message' => 'User berhasil dihapus',];
+    }
 }

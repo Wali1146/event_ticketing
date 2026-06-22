@@ -32,10 +32,10 @@ class EventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEventRequest $request)
+    public function store(StoreEventRequest $request, EventService $service)
     {
         $data = $request->validated();
-        $event = Event::create($data);
+        $event = $service->store($data);
         return response()->json($event);
     }
 
@@ -55,19 +55,21 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, Event $event)
+    public function update(UpdateEventRequest $request, EventService $service)
     {
         $data = $request->validated();
-        $event->update($data);
-        return response()->json(['message' => 'Update berhasil', 'update' => $event->id]);
+        $id = Event::query()->findOrFail($request->id);
+        $event = $service->update($id, $data);
+        return response()->json($event);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, EventService $service)
     {
-        $event = DB::select('delete from events where id = ?', [$id]);
-        return response()->json(['message' => 'Delete berhasil', $event]);
+        $data = Event::query()->find($id);
+        $event = $service->delete($data);
+        return response()->json($event);
     }
 }

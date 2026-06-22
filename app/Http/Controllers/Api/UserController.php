@@ -55,19 +55,21 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, UserService $service)
     {
         $data = $request->validated();
-        $user->update($data);
-        return response()->json(['message' => 'Update berhasil', 'update' => $user->id]);
+        $id = User::query()->findOrFail($request->id);
+        $user = $service->update($id, $data);
+        return response()->json($user);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id, UserService $service)
     {
-        $user = DB::select('delete from users where id = ?', [$id]);
-        return response()->json(['message' => 'Delete berhasil', $user]);
+        $data = User::query()->find($id);
+        $user = $service->delete($data);
+        return response()->json($user);
     }
 }
