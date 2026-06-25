@@ -2,74 +2,97 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Event;
-use App\Services\EventService;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\EventResource;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
-use Illuminate\Support\Facades\DB;
+use App\Http\Resources\EventResource;
+use App\Services\EventService;
 use Illuminate\Support\Facades\Request;
 
 class EventController extends Controller
 {
+    protected $service;
+
+    public function __construct(EventService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $event = DB::select('select * from events');
-        return EventResource::collection($event);
+        $events = $this->service->getAll();
+
+        return response()->json([
+            'message' => 'Data acara berhasil diambil',
+            'data' => EventResource::collection($events),
+        ], 200);
     }
 
     public function indexUser(Request $request)
     {
         $id = $request->user()->id;
-        $event = DB::select('select * from events where user_id = ?', [$id]);
-        return response()->json($event);
+        $event = $this->service->getId($id);
+
+        return response()->json([
+            'message' => 'Data acara berhasil diambil',
+            'data' => EventResource::collection($event),
+        ], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEventRequest $request, EventService $service)
+    public function store(StoreEventRequest $request)
     {
         $data = $request->validated();
-        $event = $service->store($data);
-        return response()->json($event);
+        $event = $this->service->store($data);
+
+        return response()->json([
+            'message' => 'Acara berhasil dibuat',
+            'data' => new EventResource($event),
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id, EventService $service)
+    public function show(int $id)
     {
-        $data = Event::query()->find($id);
-        $event = $service->get($data);
-        if (is_array($event) && isset($event['message'])) {
-            return response()->json($event);
-        }
-        return new EventResource($event);
+        $event = $this->service->getId($id);
+
+        return response()->json([
+            'message' => 'Data acara berhasil diambil',
+            'data' => new EventResource($event),
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateEventRequest $request, EventService $service)
+    public function update(UpdateEventRequest $request, $id)
     {
         $data = $request->validated();
-        $id = Event::query()->findOrFail($request->id);
-        $event = $service->update($id, $data);
-        return response()->json($event);
+        $event = $this->service->update($data, $id);
+
+        return response()->json([
+            'message' => 'Acara berhasil diupdate',
+            'data' => new EventResource($event),
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, EventService $service)
+    public function destroy(int $id)
     {
-        $data = Event::query()->find($id);
-        $event = $service->delete($data);
-        return response()->json($event);
+        $event = $this->service->destroy($id);
+
+        return response()->json([
+            'message' => 'Acara berhasil dihapus',
+            'data' => $event,
+        ], 200);
     }
 }

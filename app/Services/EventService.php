@@ -2,46 +2,61 @@
 
 namespace App\Services;
 
-use App\Models\Event;
+use App\Repositories\EventRepository;
 use Illuminate\Validation\ValidationException;
 
 class EventService
 {
-    public function get(?Event $event)
+    protected $repository;
+
+    public function __construct(EventRepository $repository)
     {
-        if (!$event) {
-            return ['message' => 'Acara tidak ditemukan',];
+        $this->repository = $repository;
+    }
+
+    public function getAll()
+    {
+        return $this->repository->getAll();
+    }
+
+    public function getId(int $id)
+    {
+        $event = $this->repository->getId($id);
+        if (! $event) {
+            throw ValidationException::withMessages([
+                'message' => 'Acara tidak ditemukan',
+            ]);
         }
+
         return $event;
     }
 
     public function store(array $data)
     {
-        if ($data['remaining_quota'] > $data['quota']) {
+        return $this->repository->post($data);
+    }
+
+    public function update(array $data, int $id)
+    {
+        $event = $this->repository->getId($id);
+        if (! $event) {
             throw ValidationException::withMessages([
-                'message' => 'Sisa kuota tidak bisa melebihi batas kuota',
-                'batas_kuota' => $data['quota'],
+                'message' => 'Acara tidak ditemukan',
             ]);
         }
-        $event = Event::create($data);
-        return $event;
+
+        return $this->repository->patch($data, $event);
     }
 
-    public function update(?Event $event, array $data)
+    public function destroy(int $id)
     {
-        if (!$event) {
-            return ['message' => 'Acara tidak ditemukan',];
+        $event = $this->repository->getId($id);
+        if (! $event) {
+            throw ValidationException::withMessages([
+                'message' => 'Acara tidak ditemukan',
+            ]);
         }
-        $event->update($data);
-        return $event;
-    }
 
-    public function delete(?Event $event)
-    {
-        if (!$event) {
-            return ['message' => 'Acara tidak ditemukan',];
-        }
-        $event->delete($event);
-        return ['message' => 'Acara berhasil dihapus',];
+        return $this->repository->delete($event);
     }
 }

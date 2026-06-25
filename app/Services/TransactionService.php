@@ -5,17 +5,34 @@ namespace App\Services;
 use App\Models\Ticket;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Repositories\TransactionRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class TransactionService
 {
-    public function get(?Transaction $transaction)
+    protected $repository;
+
+    public function __construct(TransactionRepository $repository)
     {
-        if (!$transaction) {
-            return ['message' => 'Transaksi tidak ditemukan',];
+        $this->repository = $repository;
+    }
+
+    public function getAll()
+    {
+        return $this->repository->getAll();
+    }
+
+    public function getId(int $id)
+    {
+        $transaction = $this->repository->getId($id);
+        if (! $transaction) {
+            throw ValidationException::withMessages([
+                'message' => 'Transaksi tidak ditemukan',
+            ]);
         }
         $transaction->load('ticket');
+
         return $transaction;
     }
 
@@ -24,7 +41,7 @@ class TransactionService
         return DB::transaction(function () use ($data, $transaction) {
             $id = $data['ticket_id'] ?? $transaction->ticket_id;
             $ticket = Ticket::query()->lockForUpdate()->find($id);
-            if (!$ticket) {
+            if (! $ticket) {
                 throw ValidationException::withMessages([
                     'message' => 'Tiket tidak ditemukan',
                 ]);
@@ -56,12 +73,12 @@ class TransactionService
                 }
                 $data['total_price'] = $qtyNew * $ticket->price;
             }
-            $transaction->update($data);
-            return $transaction;
+
+            return $this->repository->patch($data, $transaction);
         });
     }
 
-    public function create(array $data, Ticket $ticket, User $user)
+    public function store(array $data, Ticket $ticket, User $user)
     {
         return DB::transaction(function () use ($data, $ticket, $user) {
             $ticket = Ticket::query()->lockForUpdate()->findOrFile($data['event_id']);
@@ -72,6 +89,7 @@ class TransactionService
                 ]);
             }
             $totalPrice = $data['qty'] * $ticket->price;
+            $this->repository->post($data);
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'ticket_id' => $ticket->id,
@@ -79,16 +97,20 @@ class TransactionService
                 'total_price' => $totalPrice,
             ]);
             $ticket->decrement('remaining_quota', $data['qty']);
+
             return $transaction;
         });
     }
 
-    public function delete(?Transaction $transaction)
+    public function destroy(int $id)
     {
-        if (!$transaction) {
-            return ['message' => 'Transaksi tidak ditemukan',];
+        $transaction = $this->repository->getId($id);
+        if (! $transaction) {
+            throw ValidationException::withMessages([
+                'message' => 'Transaksi tidak ditemukan',
+            ]);
         }
-        $transaction->delete($transaction);
-        return ['message' => 'Transaksi berhasil dihapus',];
+
+        return $this->repository->delete($transaction);
     }
 }

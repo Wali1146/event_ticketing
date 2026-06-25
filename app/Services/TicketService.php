@@ -2,26 +2,48 @@
 
 namespace App\Services;
 
-use App\Models\Event;
 use App\Models\Ticket;
+use App\Repositories\TicketRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class TicketService
 {
-    public function get(?Ticket $ticket)
+    protected $repository;
+
+    public function __construct(TicketRepository $repository)
     {
-        if (!$ticket) {
-            return ['message' => 'Tiket tidak ditemukan'];
-        }
-        $ticket->load('event');
+        $this->repository = $repository;
+    }
+
+    public function getAll()
+    {
+        $ticket = $this->repository->getAll();
+
         return $ticket;
     }
 
-    public function update(array $data, Ticket $ticket, Event $event)
+    public function getId(int $id)
     {
-        return DB::transaction(function () use ($data, $ticket, $event) {
-            $event = Event::query()->lockForUpdate()->findOrFail($event->id);
+        $ticket = $this->repository->getId($id);
+        if (! $ticket) {
+            throw ValidationException::withMessages([
+                'message' => 'Tiket tidak ditemukan',
+            ]);
+        }
+        $ticket->load('event');
+
+        return $ticket;
+    }
+
+    public function store(array $data)
+    {
+        return $this->repository->post($data);
+    }
+
+    public function update(array $data, Ticket $ticket)
+    {
+        return DB::transaction(function () use ($data, $ticket) {
             if (isset($data['quota'])) {
                 $update = $data['quota'];
                 if ($update < $ticket->remaining_quota) {
@@ -42,17 +64,21 @@ class TicketService
                 }
                 $data['remaining_quota'] = $update;
             }
-            $ticket->update($data);
+            $ticket = $this->repository->patch($data, $ticket);
+
             return $ticket;
         });
     }
 
-    public function delete(?Ticket $ticket)
+    public function destroy(int $id)
     {
-        if (!$ticket) {
-            return ['message' => 'Tiket tidak ditemukan',];
+        $ticket = $this->repository->getId($id);
+        if (! $ticket) {
+            throw ValidationException::withMessages([
+                'message' => 'Tiket tidak ditemukan',
+            ]);
         }
-        $ticket->delete($ticket);
-        return ['message' => 'Tiket berhasil dihapus',];
+
+        return $this->repository->delete($ticket);
     }
 }

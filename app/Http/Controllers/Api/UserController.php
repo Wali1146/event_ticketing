@@ -2,31 +2,53 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\User;
-use App\Services\UserService;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use Illuminate\Support\Facades\DB;
+use App\Http\Resources\UserResource;
+use App\Services\UserService;
 use Illuminate\Support\Facades\Request;
 
 class UserController extends Controller
 {
+    protected $service;
+
+    public function __construct(UserService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $user = DB::select('select * from users');
-        return response()->json($user);
+        $user = $this->service->getAll();
+
+        return response()->json([
+            'message' => 'Data user berhasil diambil',
+            'data' => UserResource::collection($user),
+        ], 200);
     }
+
+    /**
+     * public function indexUser(Request $request)
+     * {
+        * $id = $request->user()->id;
+        * $user = DB::select('select * from users where user_id = ?', [$id]);
+        * return response()->json($user);
+     * }
+     */
 
     public function indexUser(Request $request)
     {
         $id = $request->user()->id;
-        $user = DB::select('select * from users where user_id = ?', [$id]);
-        return response()->json($user);
+        $user = $this->service->getId($id);
+
+        return response()->json([
+            'message' => 'Data user berhasil diambil',
+            'data' => new UserResource($user),
+        ], 200);
     }
 
     /**
@@ -35,41 +57,51 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         $data = $request->validated();
-        $user = User::create($data);
-        return response()->json($user);
+        $user = $this->service->store($data);
+
+        return response()->json([
+            'message' => 'User berhasil dibuat',
+            'data' => new UserResource($user),
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id, UserService $service)
+    public function show(int $id)
     {
-        $data = User::query()->find($id);
-        $user = $service->get($data);
-        if (is_array($user) && isset($user['message'])) {
-            return response()->json($user);
-        }
-        return new UserResource($user);
+        $user = $this->service->getId($id);
+
+        return response()->json([
+            'message' => 'Data berhasil diambil',
+            'data' => new UserResource($user),
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, UserService $service)
+    public function update(UpdateUserRequest $request, $id)
     {
         $data = $request->validated();
-        $id = User::query()->findOrFail($request->id);
-        $user = $service->update($id, $data);
-        return response()->json($user);
+        $user = $this->service->update($data, $id);
+
+        return response()->json([
+            'message' => 'User berhasil diupdate',
+            'data' => new UserResource($user),
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, UserService $service)
+    public function destroy(int $id)
     {
-        $data = User::query()->find($id);
-        $user = $service->delete($data);
-        return response()->json($user);
+        $user = $this->service->destroy($id);
+
+        return response()->json([
+            'message' => 'User berhasil dihapus',
+            'data' => $user,
+        ], 200);
     }
 }

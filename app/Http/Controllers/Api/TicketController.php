@@ -2,22 +2,32 @@
 
 namespace App\Http\Controllers\APi;
 
-use App\Models\Ticket;
-use App\Services\TicketService;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\TicketResource;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
+use App\Http\Resources\TicketResource;
+use App\Services\TicketService;
 
 class TicketController extends Controller
 {
+    protected $service;
+
+    public function __construct(TicketService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $ticket = Ticket::all();
-        return TicketResource::collection($ticket);
+        $ticket = $this->service->getAll();
+
+        return response()->json([
+            'message' => 'Data tiket berhasil diambil',
+            'data' => TicketResource::collection($ticket),
+        ], 200);
     }
 
     /**
@@ -26,42 +36,51 @@ class TicketController extends Controller
     public function store(StoreTicketRequest $request)
     {
         $data = $request->validated();
-        $ticket = Ticket::create($data);
-        return response()->json($ticket);
+        $ticket = $this->service->store($data);
+
+        return response()->json([
+            'message' => 'Tiket berhasil dibuat',
+            'data' => new TicketResource($ticket),
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id, TicketService $service)
+    public function show(int $id)
     {
-        $data = Ticket::query()->find($id);
-        $ticket = $service->get($data);
-        if (is_array($ticket) && isset($ticket['message'])) {
-            return response()->json($ticket);
-        }
-        return new TicketResource($ticket);
+        $ticket = $this->service->getId($id);
+
+        return response()->json([
+            'message' => 'Data tiket berhasil diambil',
+            'data' => new TicketResource($ticket),
+        ], 200);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTicketRequest $request, TicketService $service)
+    public function update(UpdateTicketRequest $request, $id)
     {
         $data = $request->validated();
-        $id = Ticket::query()->findOrFail($request->id);
-        $event = $id->event;
-        $ticket = $service->update($data, $id, $event);
-        return response()->json($ticket);
+        $ticket = $this->service->update($data, $id);
+
+        return response()->json([
+            'message' => 'Tiket berhasil diupdate',
+            'data' => new TicketResource($ticket),
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, TicketService $service)
+    public function destroy(int $id)
     {
-        $data = Ticket::query()->find($id);
-        $ticket = $service->delete($data);
-        return response()->json($ticket);
+        $ticket = $this->service->destroy($id);
+
+        return response()->json([
+            'message' => 'Tiket berhasil dihapus',
+            'data' => $ticket,
+        ], 200);
     }
 }

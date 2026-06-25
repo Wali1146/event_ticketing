@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Repositories;
+
+class {{className}}
+{
+    public function getAll(){
+        //
+    }
+
+    public function getId(int $id){
+        //
+    }
+
+    public function put(array $data){
+        //
+    }
+
+    public function patch(array $data, int $id){
+        //
+    }
+
+    public function delete(int $id){
+        //
+    }
+}

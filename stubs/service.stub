@@ -1,0 +1,21 @@
+<?php
+namespace App\Service;
+
+class {{className}}
+{
+    public function get(){
+        //
+    }
+
+    public function post(array $data){
+        //
+    }
+
+    public function patch(array $data, int $id){
+        //
+    }
+
+    public function delete(int $id){
+        //
+    }
+}
