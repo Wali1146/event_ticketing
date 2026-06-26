@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Services\UserService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Resources\UserResource;
-use App\Services\UserService;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -21,7 +21,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = $this->service->getAll();
 
@@ -30,15 +30,6 @@ class UserController extends Controller
             'data' => UserResource::collection($user),
         ], 200);
     }
-
-    /**
-     * public function indexUser(Request $request)
-     * {
-        * $id = $request->user()->id;
-        * $user = DB::select('select * from users where user_id = ?', [$id]);
-        * return response()->json($user);
-     * }
-     */
 
     public function indexUser(Request $request)
     {

@@ -7,7 +7,6 @@ use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 use App\Http\Resources\EventResource;
 use App\Services\EventService;
-use Illuminate\Support\Facades\Request;
 
 class EventController extends Controller
 {
@@ -28,17 +27,6 @@ class EventController extends Controller
         return response()->json([
             'message' => 'Data acara berhasil diambil',
             'data' => EventResource::collection($events),
-        ], 200);
-    }
-
-    public function indexUser(Request $request)
-    {
-        $id = $request->user()->id;
-        $event = $this->service->getId($id);
-
-        return response()->json([
-            'message' => 'Data acara berhasil diambil',
-            'data' => EventResource::collection($event),
         ], 200);
     }
 

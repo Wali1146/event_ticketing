@@ -25,7 +25,7 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'user_id' => 'integer',
-            'ticket_id' => 'required|integer|exists:ticket,id',
+            'ticket_id' => 'required|integer|exists:tickets,id',
             'qty' => 'required|integer|min:1',
             'total_price' => 'integer|min:10000',
         ];

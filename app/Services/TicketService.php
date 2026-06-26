@@ -31,7 +31,6 @@ class TicketService
                 'message' => 'Tiket tidak ditemukan',
             ]);
         }
-        $ticket->load('event');
 
         return $ticket;
     }

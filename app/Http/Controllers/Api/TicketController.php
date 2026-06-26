@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\APi;
 
+use App\Services\TicketService;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TicketResource;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
-use App\Http\Resources\TicketResource;
-use App\Services\TicketService;
 
 class TicketController extends Controller
 {

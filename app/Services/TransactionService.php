@@ -31,7 +31,18 @@ class TransactionService
                 'message' => 'Transaksi tidak ditemukan',
             ]);
         }
-        $transaction->load('ticket');
+
+        return $transaction;
+    }
+
+    public function getAllById(int $id)
+    {
+        $transaction = $this->repository->getAllById($id);
+        if (! $transaction) {
+            throw ValidationException::withMessages([
+                'message' => 'Transaksi tidak ditemukan',
+            ]);
+        }
 
         return $transaction;
     }
@@ -78,10 +89,15 @@ class TransactionService
         });
     }
 
-    public function store(array $data, Ticket $ticket, User $user)
+    public function store(array $data, User $user)
     {
-        return DB::transaction(function () use ($data, $ticket, $user) {
-            $ticket = Ticket::query()->lockForUpdate()->findOrFile($data['event_id']);
+        return DB::transaction(function () use ($data, $user) {
+            $ticket = $this->repository->getTicketId($data['ticket_id']);
+            if(!$ticket){
+                throw ValidationException::withMessages([
+                    'Tiket tidak ditemukan',
+                ]);
+            }
             if ($ticket->remaining_quota < $data['qty']) {
                 throw ValidationException::withMessages([
                     'message' => 'Permintaan mu melebihi kuota tersedia',
@@ -89,16 +105,7 @@ class TransactionService
                 ]);
             }
             $totalPrice = $data['qty'] * $ticket->price;
-            $this->repository->post($data);
-            $transaction = Transaction::create([
-                'user_id' => $user->id,
-                'ticket_id' => $ticket->id,
-                'qty' => $data['qty'],
-                'total_price' => $totalPrice,
-            ]);
-            $ticket->decrement('remaining_quota', $data['qty']);
-
-            return $transaction;
+            return $this->repository->post($ticket, $data, $user->id, $totalPrice);
         });
     }
 

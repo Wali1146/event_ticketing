@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Models\User;
 use App\Services\TransactionService;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
@@ -26,8 +27,8 @@ class TransactionController extends Controller
         $transaction = $this->service->getAll();
 
         return response()->json([
-            'message'=>'Data transaksi berhasil diambil',
-            'data'=> TransactionResource::collection($transaction),
+            'message' => 'Data transaksi berhasil diambil',
+            'data' => TransactionResource::collection($transaction),
         ], 200);
     }
 
@@ -37,11 +38,11 @@ class TransactionController extends Controller
     public function indexUser(Request $request)
     {
         $id = $request->user()->id;
-        $transaction = $this->service->getId($id);
+        $transaction = $this->service->getAllById($id);
 
         return response()->json([
-            'message'=>'Data transaksi berhasil diambil',
-            'data'=> TransactionResource::collection($transaction),
+            'message' => 'Data transaksi berhasil diambil',
+            'data' => TransactionResource::collection($transaction),
         ], 200);
     }
 
@@ -50,7 +51,13 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
-        //
+        $user = $request->user();
+        $data = $request->validated();
+        $transaction = $this->service->store($data, $user);
+        return response()->json([
+            'message'=>'Transaksi berhasil dibuat',
+            'data'=> new TransactionResource($transaction),
+        ], 201);
     }
 
     /**
